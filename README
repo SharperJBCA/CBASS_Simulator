@@ -1,0 +1,8 @@
+README
+
+1) Check that you have SLALIB installed somewhere. Either set an environment variable SLALB_LIBS to point to this directory or modify the path in setup.py
+
+2) Run setup.py as: python setup.py build_ext --inplace
+
+3) Run QU_Simulator.py: python QU_Simulator.py <filelist> --output_directory <directory-to-put-tods> --wmap_filename <wmap-fits-file> --include_noise <True/False>
+
