@@ -1,0 +1,11 @@
+import numpy as np
+
+class BaseModel:
+
+    def check_tod(self,tod,hdu):
+        """
+        Makes sure there is data inside the tod
+        """
+        
+        if not tod: # if it is empty populate it
+            tod = {k:np.zeros(hdu[self.ihdu][k].size) for k in self.data_keys}

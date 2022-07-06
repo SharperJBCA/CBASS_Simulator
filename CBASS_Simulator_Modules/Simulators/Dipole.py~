@@ -1,0 +1,31 @@
+# Dipole, code for adding a CMB dipole to the data
+import numpy as np
+from CBASS_Simulator_Modules.Simulators import BaseModel
+from astropy.io import fits
+
+from CBASS_Simulator_Modules.Tools import Coordinates
+from CBASS_Simulator_Modules.Simulators.QU_Simulator_Functions import *
+
+class Dipole(BaseModel.BaseModel):
+
+    def __init__(self,dipole,**kwargs):
+        super().__init__(**kwargs)
+
+        # CMB dipole parameters, from Table 2 of "Planck 2018 results. I. Overview,
+        # and the cosmological legacy of Planck": 2020. A&A, 641, p.A1.
+        # corresponding direction in celestial coords: right ascension and declination
+        self.dipole{'ra':167.942,
+                    'dec':  -6.944 
+                    'amplitude': 0.0033621} # amplitude in K (3.36208 ± 0.00099 mK)
+                    
+
+    def __call__(self, filename, tod):
+        """
+        Filename -- name of the fits file to replace
+        tod  -- dictionary containing the output tod's
+        """
+        hdu = fits.open(filename)
+        tod = self.setup_tod(tod,hdu)
+
+        theta, phi = (np.pi/2.-hdu[self.ihdu].data['DEC']), \
+                     np.mod(hdu[self.ihdu].data['RA'],2*np.pi)

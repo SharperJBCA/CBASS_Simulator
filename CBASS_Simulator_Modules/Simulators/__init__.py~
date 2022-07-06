@@ -1,0 +1,7 @@
+from CBASS_Simulator_Modules.Simulators import Ground, Noise, Sky, Load
+
+model_functions = {'ground':Ground.GroundModel,
+                   'fnoise':Noise.FnoiseModel,
+                   'wnoise':Noise.WnoiseModel,
+                   'sky'   :Sky.SkyModel,
+                   'load'  :Load.LoadModel}

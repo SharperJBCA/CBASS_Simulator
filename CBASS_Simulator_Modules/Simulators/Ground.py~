@@ -1,0 +1,42 @@
+import numpy as np
+from matplotlib import pyplot
+
+def load_ground_model(filename):
+    d = np.loadtxt(filename)
+
+    keys = ['AZ','I1','I2','Q1','Q2','U1','U2']
+
+    return {k:d[:,i] for i,k in enumerate(keys)}
+
+
+def ground_signal(az, tods, pa, ground_model_file):
+    """
+    """
+
+    
+    ground_model = load_ground_model(ground_model_file)
+    for k in tods.keys():
+        tods[k] += np.interp( az, ground_model['AZ'],ground_model[k],period=360)
+
+    return tods
+
+class GroundModel:
+
+    def __init__(self, 
+                 ground_model_file='',
+                 fnoise = False,
+                 random_offsets=False,
+                 random_slopes=False):
+
+        self.random_offsets = random_offsets
+        self.random_slopes = random_slopes
+        self.ground_model_files = ground_model_file
+        self.fnoise = fnoise
+
+    def __call__(az, tods, pa):
+
+        ground_model = load_ground_model(self.ground_model_file)
+        for k in tods.keys():
+            tods[k] += np.interp( az, ground_model['AZ'],ground_model[k],period=360)
+
+        return tods

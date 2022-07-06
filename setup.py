@@ -1,27 +1,32 @@
+from distutils.core import setup
 from numpy.distutils.core import setup
+from numpy.distutils.misc_util import Configuration
 from numpy.distutils.core import Extension
-from numpy import get_include
-from Cython.Build import cythonize
 import os
+import numpy as np
+from Cython.Build import cythonize
+import cython_gsl
 
-# SET SLALIB PATH TO LOCATION OF YOUR LOCAL LIBRARIES
-# Run > python setup.py build_ext --inplace
-try:
-    slalib_path = os.environ['SLALIB_LIBS']
-except KeyError:
-    slalib_path = '/star/lib' # default path of Manchester machines
+__version__ = '1.0'
+
+gsl_funcs_ext = Extension('CBASS_Simulator_Modules.Tools.gsl_funcs',
+                          ['CBASS_Simulator_Modules/Tools/gsl_funcs.pyx'],
+                          libraries=cython_gsl.get_libraries(),
+                          library_dirs=[cython_gsl.get_library_dir()],
+                          include_dirs=[cython_gsl.get_include()],
+                          extra_compile_args=['-fopenmp'],
+                          extra_link_args=['-fopenmp']
+                      )
+
+pysla = Extension(name = 'CBASS_Simulator_Modules.Tools.pysla', 
+                        sources = ['CBASS_Simulator_Modules/Tools/pysla.f90',
+                                   'CBASS_Simulator_Modules/Tools/sla.f'])
 
 
-binFuncs = Extension(name='binFuncs',
-                     include_dirs=[get_include()],
-                     sources=['binFuncs.pyx'])
+config = {'name':'CBASS_Simulator_Modules',
+          'version':__version__,
+          'packages':['CBASS_Simulator_Modules.Simulators',
+                      'CBASS_Simulator_Modules.Tools'],
+          'ext_modules':cythonize([pysla,gsl_funcs_ext])}
 
-pysla = Extension(name = 'pysla', 
-                  sources = ['pysla.f90'],
-                  libraries=['sla'],
-                  library_dirs =['{}'.format(slalib_path)],
-                  f2py_options = [],
-                  extra_f90_compile_args=['-L{}'.format(slalib_path)])
-
-extensions = [binFuncs,pysla]
-setup(ext_modules=cythonize(extensions))
+setup(**config)
