@@ -29,10 +29,17 @@ class SkyModel(BaseModel.BaseModel):
         pixels = hp.ang2pix(nside,theta,phi)
         sky_tod = {'{}{}'.format(pol,i+1):m[pixels] for pol, m in maps.items() for i in range(2)}
         # Clockwise rotation matrix: +PA for telescope to sky, -PA for sky to telescope
-        tod['I1'] = sky_tod['I1']
-        tod['I2'] = sky_tod['I2']
-        tod['Q1'],tod['U1'] = rotateQU(sky_tod['Q1'],sky_tod['U1'],-pa)
-        tod['Q2'],tod['U2'] = rotateQU(sky_tod['Q2'],sky_tod['U2'],-pa)
+        mask = (sky_tod['I1'] == hp.UNSEEN) | (sky_tod['I1'] < -1e20)
+        for k in tod.keys():
+            sky_tod[k][mask] = 0
 
+        tod['I1'] += sky_tod['I1']
+        tod['I2'] += sky_tod['I2']
+        q1,u1= rotateQU(sky_tod['Q1'],sky_tod['U1'],-pa)
+        q2,u2= rotateQU(sky_tod['Q2'],sky_tod['U2'],-pa)
+        tod['Q1'] += q1
+        tod['U1'] += u1
+        tod['Q2'] += q2
+        tod['U2'] += u2
         hdu.close()
         return tod
