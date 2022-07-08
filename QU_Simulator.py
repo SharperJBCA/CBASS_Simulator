@@ -7,9 +7,7 @@ from astropy.io import fits
 from astropy.time import Time
 import glob
 import importlib
-import Coordinates
 import click
-import Analysis_Funcs
 import os
 
 from CBASS_Simulator_Modules import Simulators
