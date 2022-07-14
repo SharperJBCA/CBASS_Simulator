@@ -18,7 +18,6 @@ class WnoiseModel(BaseModel.BaseModel):
         tod  -- dictionary containing the output tod's
         """
         hdu = fits.open(filename)
-
         tod = self.setup_tod(tod,hdu)
         
         if self.use_noise_stats:
@@ -26,12 +25,11 @@ class WnoiseModel(BaseModel.BaseModel):
         else:
             tod = self.flat_noise(tod)
         hdu.close() 
-
         return tod
 
     def stat_noise(self,tod,hdu):
         for k in tod.keys():
-            rms = np.nanmean(hdu[noise_stats_hdu].data[f'{k}_sigma'])
+            rms = np.nanmean(hdu[self.noise_stats_hdu].data[f'{k}_sigma'])
             tod[k] += np.random.normal(size=tod[k].size,scale=rms)
         return tod
 
@@ -73,9 +71,9 @@ class FnoiseModel(BaseModel.BaseModel):
 
     def stat_noise(self,tod,hdu):
         for k in tod.keys():
-            rms   = np.nanmean(hdu[noise_stats_hdu].data[f'{k}_sigma'])
-            knee  = np.nanmean(hdu[noise_stats_hdu].data[f'{k}_fknee'])
-            alpha = np.nanmean(hdu[noise_stats_hdu].data[f'{k}_alpha'])
+            rms   = np.nanmean(hdu[self.noise_stats_hdu].data[f'{k}_sigma'])
+            knee  = np.nanmean(hdu[self.noise_stats_hdu].data[f'{k}_fknee'])
+            alpha = np.nanmean(hdu[self.noise_stats_hdu].data[f'{k}_alpha'])
             fnoise,spectrum = self.Fnoise(tod[k].size,
                                           rms,
                                           knee,

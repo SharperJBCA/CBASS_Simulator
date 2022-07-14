@@ -1,4 +1,4 @@
-from CBASS_Simulator_Modules.Tools import pysla
+from SWGSimulator.Tools import pysla
 import numpy as np
 import healpy as hp
 def sex2deg(dms,hours=False):

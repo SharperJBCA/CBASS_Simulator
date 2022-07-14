@@ -7,12 +7,19 @@ from astropy.io import fits
 from astropy.time import Time
 import glob
 import importlib
+import Coordinates
 import click
+import Analysis_Funcs
 import os
 
 from CBASS_Simulator_Modules import Simulators
 from CBASS_Simulator_Modules.Simulators.QU_Simulator_Functions import *
 from CBASS_Simulator_Modules.Tools import Parser
+
+from mpi4py import MPI
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
 
 def populate_hdu(hdu,tods):
     for pol,tod in tods.items():
@@ -44,7 +51,7 @@ def generate_simulated_tod(filename, parameters, ancil_data):
     tod = {}
     for model_name, model in models.items():
         tod = model['function'](filename, tod, **model['kwargs'])
-        
+
     hdu = fits.open(filename)
     # Fix date of filename
     mjd = hdu[1].data['MJD']
@@ -103,9 +110,12 @@ def main(**kwargs):
         maps = {'I':None,'Q':None,'U':None}
 
 
+    file_idx = np.sort(np.mod(np.arange(len(filelist),dtype=int),size).astype(int))
+    file_idx = np.where((file_idx == rank))[0]
+    
         
     # Read in fits files, replace I/Q/U
-    for ifile,filename in enumerate(tqdm(filelist)):
+    for ifile,filename in enumerate(tqdm(filelist[file_idx])):
          generate_simulated_tod(filename, parameters, ancil_data)
 
 if __name__ == "__main__":
